@@ -74,8 +74,6 @@ const subscoresEl = document.getElementById("subscores");
 const summaryEl = document.getElementById("summary");
 const shareNativeBtn = document.getElementById("share-native-btn");
 const shareXBtn = document.getElementById("share-x-btn");
-const shareFacebookBtn = document.getElementById("share-facebook-btn");
-const shareLinkedInBtn = document.getElementById("share-linkedin-btn");
 const copyLinkBtn = document.getElementById("copy-link-btn");
 
 function shuffle(array) {
@@ -278,14 +276,6 @@ function wireShareButtons(result) {
 
   shareXBtn.onclick = () => {
     openShareWindow(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`);
-  };
-
-  shareFacebookBtn.onclick = () => {
-    openShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
-  };
-
-  shareLinkedInBtn.onclick = () => {
-    openShareWindow(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`);
   };
 
   copyLinkBtn.onclick = async () => {
