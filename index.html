@@ -1,14 +1,94 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+  <title>Professional IQ Assessment</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+  <main class="app">
+    <section id="start-screen" class="panel">
+      <p class="eyebrow">Cognitive Evaluation Suite</p>
+      <h1>Professional IQ Assessment</h1>
+      <p class="intro">
+        수리, 언어, 추론 영역 문항으로 구성된 표준화형 추정 테스트입니다.
+        문항 수를 선택하면 제한시간이 자동 계산됩니다 (문항당 60초).
+      </p>
+
+      <div class="setup-grid">
+        <label for="question-count">문항 수</label>
+        <select id="question-count">
+          <option value="12">12문항 (약 12분)</option>
+          <option value="24" selected>24문항 (약 24분)</option>
+          <option value="36">36문항 (약 36분)</option>
+        </select>
+      </div>
+
+      <ul class="meta">
+        <li>객관식 4지선다</li>
+        <li>영역별 가중치 기반 점수 산출</li>
+        <li>제한시간 종료 시 자동 제출</li>
+      </ul>
+
+      <button id="start-btn" class="btn primary">테스트 시작</button>
+      <p class="note">
+        본 결과는 고품질 추정치이며, 임상/공식 검사 대체용이 아닙니다.
+      </p>
+    </section>
+
+    <section id="test-screen" class="panel hidden" aria-live="polite">
+      <header class="test-head">
+        <div>
+          <p class="eyebrow">Live Session</p>
+          <p id="progress-text">문항 1 / 24</p>
+        </div>
+        <div class="timer-wrap">
+          <span>남은 시간</span>
+          <strong id="timer">24:00</strong>
+        </div>
+      </header>
+
+      <div class="progress-track">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+
+      <article class="question-card">
+        <p id="domain-badge" class="domain">영역</p>
+        <h2 id="question-text">문항 텍스트</h2>
+        <div id="choices" class="choices"></div>
+      </article>
+
+      <div class="actions">
+        <button id="prev-btn" class="btn ghost">이전</button>
+        <button id="next-btn" class="btn ghost">다음</button>
+        <button id="submit-btn" class="btn primary">제출</button>
+      </div>
+    </section>
+
+    <section id="result-screen" class="panel hidden">
+      <p class="eyebrow">Assessment Result</p>
+      <h2>결과 리포트</h2>
+      <div class="result-grid">
+        <div class="score-box">
+          <p>추정 IQ</p>
+          <strong id="iq-score">0</strong>
+          <span id="iq-band">분류</span>
+        </div>
+        <div class="score-box">
+          <p>백분위</p>
+          <strong id="percentile">0%</strong>
+          <span id="confidence">신뢰구간</span>
+        </div>
+      </div>
+
+      <div id="subscores" class="subscores"></div>
+      <p id="summary" class="summary"></p>
+
+      <button id="restart-btn" class="btn primary">다시 테스트</button>
+    </section>
+  </main>
+
+  <script defer src="/main.js"></script>
 </body>
 </html>
