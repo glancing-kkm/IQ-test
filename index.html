@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="수리·언어·논리 기반 IQ 추정 테스트. 결과 공유와 간단한 정책 안내를 제공하는 웹사이트입니다." />
   <title>Professional IQ Assessment</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
@@ -10,31 +11,37 @@
   <main class="app">
     <section id="start-screen" class="panel">
       <p class="eyebrow">Cognitive Evaluation Suite</p>
-      <h1>Professional IQ Assessment</h1>
+      <h1>🧠 Professional IQ Assessment</h1>
       <p class="intro">
         수리, 언어, 추론 영역 문항으로 구성된 표준화형 추정 테스트입니다.
-        문항 수를 선택하면 제한시간이 자동 계산됩니다 (문항당 60초).
+        문항 수를 선택하면 제한시간이 자동 계산됩니다 (문항당 30초).
       </p>
 
       <div class="setup-grid">
         <label for="question-count">문항 수</label>
         <select id="question-count">
-          <option value="12">12문항 (약 12분)</option>
-          <option value="24" selected>24문항 (약 24분)</option>
-          <option value="36">36문항 (약 36분)</option>
+          <option value="12">12문항 (약 6분)</option>
+          <option value="24" selected>24문항 (약 12분)</option>
+          <option value="36">36문항 (약 18분)</option>
         </select>
       </div>
 
       <ul class="meta">
-        <li>객관식 4지선다</li>
-        <li>영역별 가중치 기반 점수 산출</li>
-        <li>제한시간 종료 시 자동 제출</li>
+        <li>⏱️ 객관식 4지선다 + 시간 제한</li>
+        <li>📊 영역별 가중치 기반 점수 산출</li>
+        <li>✅ 제한시간 종료 시 자동 제출</li>
       </ul>
 
       <button id="start-btn" class="btn primary">테스트 시작</button>
       <p class="note">
         본 결과는 고품질 추정치이며, 임상/공식 검사 대체용이 아닙니다.
       </p>
+
+      <section class="trust-card">
+        <h3>🛡️ 신뢰 및 운영 안내</h3>
+        <p>응답 데이터는 브라우저 내에서 계산되며, 서버 저장 없이 즉시 결과를 제공합니다.</p>
+        <p>광고/콘텐츠 정책 준수를 위해 과장 표현, 선정적 문구, 오해 소지가 있는 의료 주장을 지양합니다.</p>
+      </section>
     </section>
 
     <section id="test-screen" class="panel hidden" aria-live="polite">
@@ -45,7 +52,7 @@
         </div>
         <div class="timer-wrap">
           <span>남은 시간</span>
-          <strong id="timer">24:00</strong>
+          <strong id="timer">12:00</strong>
         </div>
       </header>
 
@@ -85,8 +92,26 @@
       <div id="subscores" class="subscores"></div>
       <p id="summary" class="summary"></p>
 
+      <div class="share-wrap">
+        <p class="share-title">📣 결과 공유</p>
+        <p class="note">공유 링크로 접속한 사용자는 바로 이 사이트에서 테스트를 시작할 수 있습니다.</p>
+        <div class="share-buttons">
+          <button id="share-native-btn" class="btn ghost">기기 공유</button>
+          <button id="share-x-btn" class="btn ghost">X 공유</button>
+          <button id="share-facebook-btn" class="btn ghost">Facebook</button>
+          <button id="share-linkedin-btn" class="btn ghost">LinkedIn</button>
+          <button id="copy-link-btn" class="btn primary">링크 복사</button>
+        </div>
+      </div>
+
       <button id="restart-btn" class="btn primary">다시 테스트</button>
     </section>
+
+    <footer class="site-footer panel">
+      <h3>📌 사이트 정책 요약</h3>
+      <p>광고 정책 친화형 구조를 위해 개인정보 보호, 명확한 안내문, 과장 없는 문구를 기본 원칙으로 운영합니다.</p>
+      <p>문의: contact@example.com</p>
+    </footer>
   </main>
 
   <script defer src="/main.js"></script>

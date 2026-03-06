@@ -1,16 +1,16 @@
 const questionBank = [
-  { domain: "수리 추론", difficulty: 1, prompt: "수열 2, 4, 8, 16, ?", choices: ["18", "24", "32", "34"], answer: 2 },
-  { domain: "수리 추론", difficulty: 2, prompt: "수열 3, 6, 12, 24, ?", choices: ["36", "42", "48", "54"], answer: 2 },
-  { domain: "수리 추론", difficulty: 2, prompt: "수열 5, 9, 17, 33, ?", choices: ["49", "57", "65", "69"], answer: 2 },
-  { domain: "수리 추론", difficulty: 3, prompt: "수열 1, 4, 9, 16, 25, ?", choices: ["30", "34", "36", "49"], answer: 2 },
-  { domain: "수리 추론", difficulty: 3, prompt: "수열 7, 10, 16, 25, 37, ?", choices: ["50", "52", "54", "56"], answer: 2 },
-  { domain: "수리 추론", difficulty: 4, prompt: "수열 81, 27, 9, 3, ?", choices: ["1", "0", "-1", "3"], answer: 0 },
-  { domain: "수리 추론", difficulty: 3, prompt: "수열 11, 13, 17, 23, 31, ?", choices: ["35", "37", "39", "41"], answer: 1 },
-  { domain: "수리 추론", difficulty: 4, prompt: "수열 2, 6, 12, 20, 30, ?", choices: ["36", "40", "42", "44"], answer: 2 },
-  { domain: "수리 추론", difficulty: 4, prompt: "수열 4, 6, 9, 13, 18, ?", choices: ["22", "24", "25", "27"], answer: 1 },
-  { domain: "수리 추론", difficulty: 5, prompt: "수열 3, 5, 11, 21, 43, ?", choices: ["65", "75", "85", "87"], answer: 2 },
-  { domain: "수리 추론", difficulty: 2, prompt: "48의 25%는?", choices: ["10", "12", "14", "16"], answer: 1 },
-  { domain: "수리 추론", difficulty: 3, prompt: "어떤 수 x에 대해 3x + 5 = 26일 때 x는?", choices: ["6", "7", "8", "9"], answer: 1 },
+  { domain: "수리 추론", difficulty: 1, prompt: "a<sub>n</sub>: 2, 4, 8, 16, ?", choices: ["18", "24", "32", "34"], answer: 2 },
+  { domain: "수리 추론", difficulty: 2, prompt: "a<sub>n</sub>: 3, 6, 12, 24, ?", choices: ["36", "42", "48", "54"], answer: 2 },
+  { domain: "수리 추론", difficulty: 2, prompt: "a<sub>n</sub>: 5, 9, 17, 33, ?", choices: ["49", "57", "65", "69"], answer: 2 },
+  { domain: "수리 추론", difficulty: 3, prompt: "a<sub>n</sub> = n<sup>2</sup>, n=1..5 다음 항은?", choices: ["30", "34", "36", "49"], answer: 2 },
+  { domain: "수리 추론", difficulty: 3, prompt: "a<sub>n</sub>: 7, 10, 16, 25, 37, ?", choices: ["50", "52", "54", "56"], answer: 2 },
+  { domain: "수리 추론", difficulty: 4, prompt: "a<sub>n+1</sub> = a<sub>n</sub> / 3, a<sub>1</sub>=81, a<sub>5</sub>=?", choices: ["1", "0", "-1", "3"], answer: 0 },
+  { domain: "수리 추론", difficulty: 3, prompt: "a<sub>n</sub>: 11, 13, 17, 23, 31, ?", choices: ["35", "37", "39", "41"], answer: 1 },
+  { domain: "수리 추론", difficulty: 4, prompt: "a<sub>n</sub>: 2, 6, 12, 20, 30, ?", choices: ["36", "40", "42", "44"], answer: 2 },
+  { domain: "수리 추론", difficulty: 4, prompt: "a<sub>n</sub>: 4, 6, 9, 13, 18, ?", choices: ["22", "24", "25", "27"], answer: 1 },
+  { domain: "수리 추론", difficulty: 5, prompt: "a<sub>n+1</sub> = 2a<sub>n</sub> - 1, a<sub>1</sub>=3, a<sub>6</sub>=?", choices: ["65", "75", "85", "87"], answer: 2 },
+  { domain: "수리 추론", difficulty: 2, prompt: "0.25 × 48 = ?", choices: ["10", "12", "14", "16"], answer: 1 },
+  { domain: "수리 추론", difficulty: 3, prompt: "3x + 5 = 26, x = ?", choices: ["6", "7", "8", "9"], answer: 1 },
 
   { domain: "언어 추론", difficulty: 1, prompt: "'책'과 가장 가까운 관계: '연필'은?", choices: ["쓰기", "지우개", "종이", "공부"], answer: 2 },
   { domain: "언어 추론", difficulty: 2, prompt: "의미가 가장 가까운 단어: '간결한'", choices: ["복잡한", "짧고 명료한", "화려한", "느린"], answer: 1 },
@@ -72,6 +72,11 @@ const percentileEl = document.getElementById("percentile");
 const confidenceEl = document.getElementById("confidence");
 const subscoresEl = document.getElementById("subscores");
 const summaryEl = document.getElementById("summary");
+const shareNativeBtn = document.getElementById("share-native-btn");
+const shareXBtn = document.getElementById("share-x-btn");
+const shareFacebookBtn = document.getElementById("share-facebook-btn");
+const shareLinkedInBtn = document.getElementById("share-linkedin-btn");
+const copyLinkBtn = document.getElementById("copy-link-btn");
 
 function shuffle(array) {
   const copy = [...array];
@@ -100,7 +105,7 @@ function beginTest() {
   state.selectedQuestions = shuffle(questionBank).slice(0, count);
   state.answers = Array(count).fill(null);
   state.current = 0;
-  state.totalTimeSec = count * 60;
+  state.totalTimeSec = count * 30;
   state.remainingSec = state.totalTimeSec;
 
   if (state.timerId) {
@@ -130,14 +135,14 @@ function renderQuestion() {
   progressText.textContent = `문항 ${state.current + 1} / ${total}`;
   progressBar.style.width = `${((state.current + 1) / total) * 100}%`;
   domainBadge.textContent = `${q.domain} | 난이도 ${q.difficulty}`;
-  questionText.textContent = q.prompt;
+  questionText.innerHTML = q.prompt;
 
   choicesWrap.innerHTML = "";
   q.choices.forEach((choice, index) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "choice";
-    button.textContent = `${String.fromCharCode(65 + index)}. ${choice}`;
+    button.innerHTML = `${String.fromCharCode(65 + index)}. ${choice}`;
 
     if (answered === index) {
       button.classList.add("selected");
@@ -234,6 +239,69 @@ function renderResult(result, autoSubmitted) {
 
   const timeoutText = autoSubmitted ? "제한시간 종료로 자동 제출되었습니다. " : "";
   summaryEl.textContent = `${timeoutText}응답 문항 ${result.answeredCount}/${result.total}. 높은 정확도를 위해 동일한 환경에서 2~3회 반복 측정 후 평균을 권장합니다.`;
+
+  wireShareButtons(result);
+}
+
+function getSharePayload(result) {
+  const landingUrl = new URL(window.location.href);
+  landingUrl.searchParams.set("from", "sns_share");
+  landingUrl.searchParams.set("entry", "iq_test");
+  landingUrl.hash = "start-screen";
+
+  const shareUrl = landingUrl.toString();
+  const shareText = `내 추정 IQ는 ${result.iq} (${result.band}, 상위 ${result.percentile}%)! 너도 테스트해봐.`;
+
+  return { shareUrl, shareText };
+}
+
+function openShareWindow(url) {
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+function wireShareButtons(result) {
+  const { shareUrl, shareText } = getSharePayload(result);
+  const encodedText = encodeURIComponent(shareText);
+  const encodedUrl = encodeURIComponent(shareUrl);
+
+  shareNativeBtn.onclick = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Professional IQ Assessment", text: shareText, url: shareUrl });
+      } catch (err) {
+        // noop: user canceled share dialog
+      }
+      return;
+    }
+    openShareWindow(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`);
+  };
+
+  shareXBtn.onclick = () => {
+    openShareWindow(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`);
+  };
+
+  shareFacebookBtn.onclick = () => {
+    openShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
+  };
+
+  shareLinkedInBtn.onclick = () => {
+    openShareWindow(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`);
+  };
+
+  copyLinkBtn.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      copyLinkBtn.textContent = "복사 완료";
+      setTimeout(() => {
+        copyLinkBtn.textContent = "링크 복사";
+      }, 1400);
+    } catch (err) {
+      copyLinkBtn.textContent = "복사 실패";
+      setTimeout(() => {
+        copyLinkBtn.textContent = "링크 복사";
+      }, 1400);
+    }
+  };
 }
 
 function finishTest(autoSubmitted = false) {
