@@ -320,3 +320,19 @@ nextBtn.addEventListener("click", () => {
   }
 });
 submitBtn.addEventListener("click", () => finishTest(false));
+
+// ── Mobile: scroll active question into view after orientation change ──
+function scrollToActivePanel() {
+  const visiblePanel = [startScreen, testScreen, resultScreen].find(
+    (el) => !el.classList.contains("hidden")
+  );
+  if (visiblePanel) {
+    visiblePanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+if (window.screen?.orientation) {
+  window.screen.orientation.addEventListener("change", scrollToActivePanel);
+} else {
+  window.addEventListener("orientationchange", scrollToActivePanel);
+}
