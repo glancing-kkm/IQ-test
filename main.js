@@ -1,42 +1,102 @@
+// ───────────────────────────────────────────────
+// Mensa Norway Standard IQ Test — 35 Q / 25 min
+// ───────────────────────────────────────────────
+
+const TOTAL_QUESTIONS = 35;
+const TOTAL_TIME_SEC = 25 * 60;
+
+function svgMatrix(grid) {
+  const cells = grid.flat();
+  let body = "";
+  cells.forEach((cell, i) => {
+    const cx = 40 + (i % 3) * 80;
+    const cy = 40 + Math.floor(i / 3) * 80;
+    const isMissing = cell === "?";
+    const fill = isMissing ? "#75777f" : "#1a2b4c";
+    const size = isMissing ? 44 : 30;
+    const weight = isMissing ? 400 : 500;
+    body += `<text x="${cx}" y="${cy}" fill="${fill}" font-size="${size}" font-weight="${weight}" text-anchor="middle" dominant-baseline="central" font-family="Inter, Noto Sans KR, sans-serif">${cell}</text>`;
+  });
+  return `<svg viewBox="0 0 240 240" class="matrix-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3x3 matrix puzzle"><g stroke="#c5c6cf" fill="#ffffff" stroke-width="1"><rect x="0.5" y="0.5" width="239" height="239" rx="6"/></g><g stroke="#e0e3e5" stroke-width="1"><line x1="80" y1="6" x2="80" y2="234"/><line x1="160" y1="6" x2="160" y2="234"/><line x1="6" y1="80" x2="234" y2="80"/><line x1="6" y1="160" x2="234" y2="160"/></g>${body}</svg>`;
+}
+
+function figText(text) {
+  return `<div class="figure num-seq">${text}</div>`;
+}
+
+function figMatrix(grid) {
+  return `<div class="figure matrix-wrap">${svgMatrix(grid)}</div>`;
+}
+
 const questionBank = [
-  { domain: "수리 추론", difficulty: 1, prompt: "a<sub>n</sub>: 2, 4, 8, 16, ?", choices: ["18", "24", "32", "34"], answer: 2 },
-  { domain: "수리 추론", difficulty: 2, prompt: "a<sub>n</sub>: 3, 6, 12, 24, ?", choices: ["36", "42", "48", "54"], answer: 2 },
-  { domain: "수리 추론", difficulty: 2, prompt: "a<sub>n</sub>: 5, 9, 17, 33, ?", choices: ["49", "57", "65", "69"], answer: 2 },
-  { domain: "수리 추론", difficulty: 3, prompt: "a<sub>n</sub> = n<sup>2</sup>, n=1..5 다음 항은?", choices: ["30", "34", "36", "49"], answer: 2 },
-  { domain: "수리 추론", difficulty: 3, prompt: "a<sub>n</sub>: 7, 10, 16, 25, 37, ?", choices: ["50", "52", "54", "56"], answer: 2 },
-  { domain: "수리 추론", difficulty: 4, prompt: "a<sub>n+1</sub> = a<sub>n</sub> / 3, a<sub>1</sub>=81, a<sub>5</sub>=?", choices: ["1", "0", "-1", "3"], answer: 0 },
-  { domain: "수리 추론", difficulty: 3, prompt: "a<sub>n</sub>: 11, 13, 17, 23, 31, ?", choices: ["35", "37", "39", "41"], answer: 1 },
-  { domain: "수리 추론", difficulty: 4, prompt: "a<sub>n</sub>: 2, 6, 12, 20, 30, ?", choices: ["36", "40", "42", "44"], answer: 2 },
-  { domain: "수리 추론", difficulty: 4, prompt: "a<sub>n</sub>: 4, 6, 9, 13, 18, ?", choices: ["22", "24", "25", "27"], answer: 1 },
-  { domain: "수리 추론", difficulty: 5, prompt: "a<sub>n+1</sub> = 2a<sub>n</sub> - 1, a<sub>1</sub>=3, a<sub>6</sub>=?", choices: ["65", "75", "85", "87"], answer: 2 },
-  { domain: "수리 추론", difficulty: 2, prompt: "0.25 × 48 = ?", choices: ["10", "12", "14", "16"], answer: 1 },
-  { domain: "수리 추론", difficulty: 3, prompt: "3x + 5 = 26, x = ?", choices: ["6", "7", "8", "9"], answer: 1 },
+  // === Items 1-7 (Difficulty 1) — Warmup ===
+  { domain: "수열 추론", difficulty: 1, prompt: figText("2, 4, 6, 8, ?"),         choices: ["9", "10", "11", "12"], answer: 1 },
+  { domain: "도형 패턴", difficulty: 1, prompt: figText("▲ ■ ● ▲ ■ ?"),           choices: ["▲", "■", "●", "◆"], answer: 2 },
+  { domain: "수열 추론", difficulty: 1, prompt: figText("3, 6, 9, 12, ?"),        choices: ["13", "14", "15", "16"], answer: 2 },
+  { domain: "도형 패턴", difficulty: 1, prompt: figText("↑ → ↓ ← ?"),             choices: ["↑", "→", "↓", "←"], answer: 0 },
+  { domain: "도형 패턴", difficulty: 1, prompt: figText("○ , ○○ , ○○○ , ?"),     choices: ["○○", "○○○○", "○○○○○", "○"], answer: 1 },
+  { domain: "기호 추론", difficulty: 1, prompt: figText("A, C, E, G, ?"),         choices: ["H", "I", "J", "K"], answer: 1 },
+  { domain: "수열 추론", difficulty: 1, prompt: figText("1, 4, 7, 10, ?"),        choices: ["11", "12", "13", "14"], answer: 2 },
 
-  { domain: "언어 추론", difficulty: 1, prompt: "'책'과 가장 가까운 관계: '연필'은?", choices: ["쓰기", "지우개", "종이", "공부"], answer: 2 },
-  { domain: "언어 추론", difficulty: 2, prompt: "의미가 가장 가까운 단어: '간결한'", choices: ["복잡한", "짧고 명료한", "화려한", "느린"], answer: 1 },
-  { domain: "언어 추론", difficulty: 2, prompt: "반의어가 되는 단어: '확장'", choices: ["증가", "발전", "축소", "개선"], answer: 2 },
-  { domain: "언어 추론", difficulty: 3, prompt: "관계 추론: '의사 : 병원 = 교사 : ?'", choices: ["교실", "학생", "학교", "칠판"], answer: 2 },
-  { domain: "언어 추론", difficulty: 3, prompt: "관계 추론: '심장 : 혈액 = 펌프 : ?'", choices: ["물", "전기", "공기", "기름"], answer: 0 },
-  { domain: "언어 추론", difficulty: 3, prompt: "문맥상 가장 자연스러운 단어: '그의 판단은 매우 ___ 해서 실수가 적었다.'", choices: ["충동적", "신중", "경솔", "난해"], answer: 1 },
-  { domain: "언어 추론", difficulty: 4, prompt: "유추: '씨앗 : 나무 = 아이디어 : ?'", choices: ["회의", "문장", "혁신", "기억"], answer: 2 },
-  { domain: "언어 추론", difficulty: 4, prompt: "의미가 가장 가까운 단어: '타당한'", choices: ["엉뚱한", "논리적인", "감정적인", "임시적인"], answer: 1 },
-  { domain: "언어 추론", difficulty: 5, prompt: "관계 추론: '법 : 질서 = 문법 : ?'", choices: ["단어", "의미", "문장", "표현"], answer: 2 },
-  { domain: "언어 추론", difficulty: 2, prompt: "가장 적절한 속담 의미: '등잔 밑이 어둡다'", choices: ["빛이 중요하다", "가까운 것을 놓치기 쉽다", "밤이 위험하다", "작은 것이 소중하다"], answer: 1 },
-  { domain: "언어 추론", difficulty: 3, prompt: "다음 중 범주가 다른 하나는?", choices: ["피아노", "바이올린", "플루트", "캔버스"], answer: 3 },
-  { domain: "언어 추론", difficulty: 4, prompt: "논리적으로 가장 타당한 결론: '모든 A는 B이고, 일부 B는 C다.'", choices: ["모든 A는 C다", "일부 A는 C다", "A와 C는 무관할 수 있다", "모든 C는 A다"], answer: 2 },
+  // === Items 8-14 (Difficulty 2) ===
+  { domain: "수열 추론", difficulty: 2, prompt: figText("2, 4, 8, 16, ?"),        choices: ["24", "28", "32", "36"], answer: 2 },
+  { domain: "수열 추론", difficulty: 2, prompt: figText("1, 4, 9, 16, ?"),        choices: ["20", "23", "25", "36"], answer: 2 },
+  { domain: "행렬 추론", difficulty: 2, prompt: figMatrix([
+      ["●", "●●", "●●●"],
+      ["■", "■■", "■■■"],
+      ["▲", "▲▲", "?"]
+  ]), choices: ["▲", "▲▲", "▲▲▲", "▲▲▲▲"], answer: 2 },
+  { domain: "수열 추론", difficulty: 2, prompt: figText("1, 1, 2, 3, 5, ?"),      choices: ["6", "7", "8", "9"], answer: 2 },
+  { domain: "기호 추론", difficulty: 2, prompt: figText("AZ, BY, CX, DW, ?"),      choices: ["EV", "EU", "FX", "GW"], answer: 0 },
+  { domain: "수열 추론", difficulty: 2, prompt: figText("1, 2, 4, 7, 11, ?"),     choices: ["14", "15", "16", "17"], answer: 2 },
+  { domain: "행렬 추론", difficulty: 2, prompt: figMatrix([
+      ["○", "△", "□"],
+      ["△", "□", "○"],
+      ["□", "○", "?"]
+  ]), choices: ["○", "△", "□", "◇"], answer: 1 },
 
-  { domain: "논리/도형 추론", difficulty: 1, prompt: "패턴: ▲ ■ ▲ ■ ▲ ?", choices: ["▲", "■", "●", "◆"], answer: 1 },
-  { domain: "논리/도형 추론", difficulty: 2, prompt: "패턴: ○, ○○, ○○○, ?", choices: ["○○", "○○○○", "○○○○○", "○"], answer: 1 },
-  { domain: "논리/도형 추론", difficulty: 2, prompt: "규칙: 2단계마다 방향이 반전된다. ↑ ↑ ↓ ↓ ↑ ↑ ?", choices: ["↑", "↓", "←", "→"], answer: 1 },
-  { domain: "논리/도형 추론", difficulty: 3, prompt: "A>B, B>C일 때 항상 참인 것은?", choices: ["C>A", "A>C", "B<A", "C>B"], answer: 1 },
-  { domain: "논리/도형 추론", difficulty: 3, prompt: "모든 X는 Y. 어떤 Y는 Z. 반드시 참인 것은?", choices: ["모든 X는 Z", "어떤 X는 Z", "X와 Z의 관계는 확정 불가", "모든 Z는 X"], answer: 2 },
-  { domain: "논리/도형 추론", difficulty: 4, prompt: "세 도형 회전 규칙(90도 시계방향 반복)에서 4번째 위치는? [↑, →, ↓, ?]", choices: ["←", "↑", "→", "↓"], answer: 0 },
-  { domain: "논리/도형 추론", difficulty: 4, prompt: "집합 추론: 모든 원은 도형, 모든 삼각형도 도형. 올바른 결론은?", choices: ["모든 도형은 원", "원과 삼각형은 모두 도형", "삼각형은 원의 부분집합", "도형은 삼각형뿐"], answer: 1 },
-  { domain: "논리/도형 추론", difficulty: 4, prompt: "규칙: 이전 두 수의 합에서 1을 뺀다. 2, 3, 4, 6, 9, ?", choices: ["12", "13", "14", "15"], answer: 2 },
-  { domain: "논리/도형 추론", difficulty: 5, prompt: "명제: 'p이면 q'가 거짓이 되려면?", choices: ["p 거짓, q 참", "p 참, q 거짓", "p 거짓, q 거짓", "p 참, q 참"], answer: 1 },
-  { domain: "논리/도형 추론", difficulty: 5, prompt: "두 명제 모두 참: '모든 M은 N', '어떤 N은 P'. 타당한 판단은?", choices: ["어떤 M은 P", "모든 P는 M", "M과 P 연결은 필수 아님", "모든 N은 M"], answer: 2 },
-  { domain: "논리/도형 추론", difficulty: 3, prompt: "도형 패턴: □, △, ○, □, △, ?", choices: ["○", "□", "△", "◇"], answer: 0 },
-  { domain: "논리/도형 추론", difficulty: 5, prompt: "수열 규칙: 각 항은 직전 항에 2를 곱하고 1을 더한다. 1, 3, 7, 15, ?", choices: ["29", "30", "31", "33"], answer: 2 }
+  // === Items 15-22 (Difficulty 3) ===
+  { domain: "수열 추론", difficulty: 3, prompt: figText("1, 3, 6, 10, 15, ?"),     choices: ["18", "20", "21", "28"], answer: 2 },
+  { domain: "수열 추론", difficulty: 3, prompt: figText("1, 3, 7, 15, 31, ?"),     choices: ["47", "55", "63", "71"], answer: 2 },
+  { domain: "행렬 추론", difficulty: 3, prompt: figMatrix([
+      ["↑", "→", "↓"],
+      ["→", "↓", "←"],
+      ["↓", "←", "?"]
+  ]), choices: ["↑", "→", "↓", "←"], answer: 0 },
+  { domain: "수열 추론", difficulty: 3, prompt: figText("0, 3, 8, 15, 24, ?"),     choices: ["33", "34", "35", "48"], answer: 2 },
+  { domain: "수열 추론", difficulty: 3, prompt: figText("2, 5, 11, 23, 47, ?"),    choices: ["91", "93", "95", "97"], answer: 2 },
+  { domain: "수열 추론", difficulty: 3, prompt: figText("1, 2, 6, 24, 120, ?"),    choices: ["360", "600", "720", "840"], answer: 2 },
+  { domain: "수열 추론", difficulty: 3, prompt: figText("2, 6, 12, 20, 30, ?"),    choices: ["38", "40", "42", "44"], answer: 2 },
+  { domain: "행렬 추론", difficulty: 3, prompt: figMatrix([
+      ["1", "2", "3"],
+      ["2", "4", "6"],
+      ["3", "6", "?"]
+  ]), choices: ["7", "8", "9", "12"], answer: 2 },
+
+  // === Items 23-29 (Difficulty 4) ===
+  { domain: "수열 추론", difficulty: 4, prompt: figText("1, 4, 13, 40, 121, ?"),   choices: ["243", "324", "364", "405"], answer: 2 },
+  { domain: "수열 추론", difficulty: 4, prompt: figText("1, 2, 5, 14, 41, ?"),     choices: ["82", "102", "122", "142"], answer: 2 },
+  { domain: "수열 추론", difficulty: 4, prompt: figText("1, 3, 2, 6, 4, 12, 8, ?"),choices: ["16", "18", "24", "32"], answer: 2 },
+  { domain: "수열 추론", difficulty: 4, prompt: figText("1, 5, 14, 30, 55, ?"),    choices: ["84", "91", "96", "100"], answer: 1 },
+  { domain: "수열 추론", difficulty: 4, prompt: figText("3, 8, 15, 24, 35, ?"),    choices: ["44", "46", "48", "50"], answer: 2 },
+  { domain: "행렬 추론", difficulty: 4, prompt: figMatrix([
+      ["2", "4", "8"],
+      ["4", "8", "16"],
+      ["8", "16", "?"]
+  ]), choices: ["24", "28", "32", "48"], answer: 2 },
+  { domain: "수열 추론", difficulty: 4, prompt: figText("1, 8, 27, 64, 125, ?"),   choices: ["196", "200", "216", "256"], answer: 2 },
+
+  // === Items 30-35 (Difficulty 5) ===
+  { domain: "수열 추론", difficulty: 5, prompt: figText("2, 3, 5, 8, 13, 21, ?"),  choices: ["29", "31", "34", "39"], answer: 2 },
+  { domain: "수열 추론", difficulty: 5, prompt: figText("2, 12, 30, 56, 90, ?"),   choices: ["110", "120", "132", "144"], answer: 2 },
+  { domain: "수열 추론", difficulty: 5, prompt: figText("1, 3, 8, 19, 42, ?"),     choices: ["84", "86", "89", "91"], answer: 2 },
+  { domain: "수열 추론", difficulty: 5, prompt: figText("1, 4, 10, 22, 46, ?"),    choices: ["90", "92", "94", "96"], answer: 2 },
+  { domain: "행렬 추론", difficulty: 5, prompt: figMatrix([
+      ["●1", "●2", "●3"],
+      ["▲1", "▲2", "▲3"],
+      ["■1", "■2", "?"]
+  ]), choices: ["■2", "■3", "▲3", "●3"], answer: 1 },
+  { domain: "수열 추론", difficulty: 5, prompt: figText("1, 2, 5, 11, 21, 36, ?"), choices: ["49", "53", "57", "62"], answer: 2 }
 ];
 
 const state = {
@@ -51,8 +111,8 @@ const state = {
 const startScreen = document.getElementById("start-screen");
 const testScreen = document.getElementById("test-screen");
 const resultScreen = document.getElementById("result-screen");
+const sessionHeader = document.getElementById("session-header");
 
-const questionCountEl = document.getElementById("question-count");
 const startBtn = document.getElementById("start-btn");
 const restartBtn = document.getElementById("restart-btn");
 const prevBtn = document.getElementById("prev-btn");
@@ -63,8 +123,17 @@ const progressText = document.getElementById("progress-text");
 const progressBar = document.getElementById("progress-bar");
 const timerEl = document.getElementById("timer");
 const domainBadge = document.getElementById("domain-badge");
+const testEyebrow = document.getElementById("test-eyebrow");
+const testSub = document.getElementById("test-sub");
 const questionText = document.getElementById("question-text");
 const choicesWrap = document.getElementById("choices");
+
+const domainDescriptions = {
+  "수열 추론": "규칙을 파악해 빈칸에 들어갈 값을 선택하세요.",
+  "행렬 추론": "3×3 그리드의 빈 칸에 들어갈 패턴을 선택하세요.",
+  "도형 패턴": "패턴에 이어질 도형을 선택하세요.",
+  "기호 추론": "규칙에 따른 다음 문자를 선택하세요.",
+};
 
 const iqScoreEl = document.getElementById("iq-score");
 const iqBandEl = document.getElementById("iq-band");
@@ -98,15 +167,32 @@ function setScreen(target) {
   testScreen.classList.add("hidden");
   resultScreen.classList.add("hidden");
   target.classList.remove("hidden");
+
+  if (target === testScreen) {
+    sessionHeader.classList.remove("hidden");
+  } else {
+    sessionHeader.classList.add("hidden");
+  }
+
+  if (target === startScreen) {
+    progressBar.style.width = "0%";
+  } else if (target === resultScreen) {
+    progressBar.style.width = "100%";
+  }
 }
 
 function beginTest() {
-  const count = Number(questionCountEl.value);
-  state.selectedQuestions = shuffle(questionBank).slice(0, count);
-  state.answers = Array(count).fill(null);
+  state.selectedQuestions = [
+    ...shuffle(questionBank.slice(0, 7)),
+    ...shuffle(questionBank.slice(7, 14)),
+    ...shuffle(questionBank.slice(14, 22)),
+    ...shuffle(questionBank.slice(22, 29)),
+    ...shuffle(questionBank.slice(29, 35)),
+  ];
+  state.answers = Array(TOTAL_QUESTIONS).fill(null);
   state.current = 0;
-  state.totalTimeSec = count * 30;
-  state.remainingSec = state.totalTimeSec;
+  state.totalTimeSec = TOTAL_TIME_SEC;
+  state.remainingSec = TOTAL_TIME_SEC;
 
   if (state.timerId) {
     clearInterval(state.timerId);
@@ -134,7 +220,9 @@ function renderQuestion() {
 
   progressText.textContent = `문항 ${state.current + 1} / ${total}`;
   progressBar.style.width = `${((state.current + 1) / total) * 100}%`;
-  domainBadge.textContent = `${q.domain} | 난이도 ${q.difficulty}`;
+  domainBadge.textContent = q.domain;
+  testEyebrow.textContent = `난이도 ${q.difficulty}`;
+  testSub.textContent = domainDescriptions[q.domain] ?? "다음에 올 답을 선택하세요.";
   questionText.innerHTML = q.prompt;
 
   choicesWrap.innerHTML = "";
@@ -142,7 +230,7 @@ function renderQuestion() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "choice";
-    button.innerHTML = `${String.fromCharCode(65 + index)}. ${choice}`;
+    button.innerHTML = `<span class="choice-num">${index + 1}</span><span class="choice-content">${choice}</span><span class="choice-check"><span class="material-symbols-outlined">check</span></span>`;
 
     if (answered === index) {
       button.classList.add("selected");
@@ -161,62 +249,85 @@ function renderQuestion() {
 }
 
 function getBand(iq) {
-  if (iq >= 130) return "매우 우수";
+  if (iq >= 145) return "최상위 (멘사 자격 수준)";
+  if (iq >= 130) return "매우 우수 (상위 2%)";
   if (iq >= 120) return "우수";
   if (iq >= 110) return "평균 이상";
-  if (iq >= 90) return "평균";
-  if (iq >= 80) return "평균 이하";
+  if (iq >= 90)  return "평균";
+  if (iq >= 80)  return "평균 이하";
   return "낮음";
+}
+
+function erf(x) {
+  const sign = x >= 0 ? 1 : -1;
+  const ax = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * ax);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-ax * ax);
+  return sign * y;
+}
+
+function topPercentile(iq) {
+  const z = (iq - 100) / 15;
+  const cdf = 0.5 * (1 + erf(z / Math.SQRT2));
+  const top = 100 * (1 - cdf);
+  if (top < 1)  return +top.toFixed(2);
+  if (top < 10) return +top.toFixed(1);
+  return Math.round(top);
 }
 
 function calcIQResult() {
   const total = state.selectedQuestions.length;
   const answeredCount = state.answers.filter((v) => v !== null).length;
 
+  const weights = { 1: 1.0, 2: 1.2, 3: 1.5, 4: 1.8, 5: 2.0 };
+
   let weightedCorrect = 0;
   let weightedTotal = 0;
-
-  const domains = {
-    "수리 추론": { correct: 0, total: 0 },
-    "언어 추론": { correct: 0, total: 0 },
-    "논리/도형 추론": { correct: 0, total: 0 },
-  };
+  const tiers = [
+    { name: "쉬움 (1-7)",         correct: 0, total: 0 },
+    { name: "기초 (8-14)",        correct: 0, total: 0 },
+    { name: "보통 (15-22)",       correct: 0, total: 0 },
+    { name: "어려움 (23-29)",     correct: 0, total: 0 },
+    { name: "매우 어려움 (30-35)", correct: 0, total: 0 },
+  ];
 
   state.selectedQuestions.forEach((q, idx) => {
-    const weight = 1 + (q.difficulty - 1) * 0.25;
-    weightedTotal += weight;
+    const w = weights[q.difficulty] ?? 1;
+    weightedTotal += w;
+
+    const tierIdx = idx < 7 ? 0 : idx < 14 ? 1 : idx < 22 ? 2 : idx < 29 ? 3 : 4;
+    tiers[tierIdx].total += 1;
 
     if (state.answers[idx] === q.answer) {
-      weightedCorrect += weight;
-      domains[q.domain].correct += 1;
+      weightedCorrect += w;
+      tiers[tierIdx].correct += 1;
     }
-
-    domains[q.domain].total += 1;
   });
 
   const ability = weightedCorrect / weightedTotal;
-  const unansweredPenalty = (total - answeredCount) / total;
-  const speedRatio = state.remainingSec / state.totalTimeSec;
 
-  const speedBonus = Math.max(-0.03, Math.min(0.04, speedRatio * 0.08 - 0.02));
-  const adjustedAbility = Math.max(0, Math.min(1, ability + speedBonus - unansweredPenalty * 0.1));
+  const completion = answeredCount / total;
+  const completionPenalty = (1 - completion) * 0.08;
+  const speedBonus = state.remainingSec > 0
+    ? Math.min(0.02, (state.remainingSec / state.totalTimeSec) * 0.04)
+    : 0;
 
-  const iq = Math.round(70 + adjustedAbility * 75);
-  const boundedIQ = Math.max(70, Math.min(145, iq));
+  const adjustedAbility = Math.max(0, Math.min(1, ability + speedBonus - completionPenalty));
 
-  const percentile = Math.max(1, Math.min(99, Math.round((boundedIQ - 55) / 0.9)));
-
-  const margin = Math.max(4, Math.round(10 - ability * 6));
+  const rawIq = Math.round(70 + adjustedAbility * 75);
+  const iq = Math.max(70, Math.min(145, rawIq));
+  const top = topPercentile(iq);
+  const margin = Math.max(3, Math.round(8 - adjustedAbility * 4));
 
   return {
-    iq: boundedIQ,
-    percentile,
-    band: getBand(boundedIQ),
-    confidenceLow: boundedIQ - margin,
-    confidenceHigh: boundedIQ + margin,
+    iq,
+    percentile: top,
+    band: getBand(iq),
+    confidenceLow: Math.max(60, iq - margin),
+    confidenceHigh: Math.min(160, iq + margin),
     answeredCount,
     total,
-    domains,
+    tiers,
   };
 }
 
@@ -224,21 +335,19 @@ function renderResult(result, autoSubmitted) {
   iqScoreEl.textContent = String(result.iq);
   iqBandEl.textContent = result.band;
   percentileEl.textContent = `${result.percentile}%`;
-  confidenceEl.textContent = `신뢰구간(추정): ${result.confidenceLow} - ${result.confidenceHigh}`;
+  confidenceEl.textContent = `신뢰구간 ${result.confidenceLow} - ${result.confidenceHigh}`;
 
   subscoresEl.innerHTML = "";
-  Object.entries(result.domains).forEach(([name, data]) => {
-    const score = data.total ? Math.round((data.correct / data.total) * 100) : 0;
-    const scaled = Math.round(70 + score * 0.75);
-
+  result.tiers.forEach((tier) => {
+    const pct = tier.total ? Math.round((tier.correct / tier.total) * 100) : 0;
     const row = document.createElement("div");
     row.className = "subscore";
-    row.innerHTML = `<span>${name}</span><strong>${scaled} (${data.correct}/${data.total})</strong>`;
+    row.innerHTML = `<span>${tier.name}</span><strong>${tier.correct} / ${tier.total} (${pct}%)</strong>`;
     subscoresEl.appendChild(row);
   });
 
   const timeoutText = autoSubmitted ? "제한시간 종료로 자동 제출되었습니다. " : "";
-  summaryEl.textContent = `${timeoutText}응답 문항 ${result.answeredCount}/${result.total}. 높은 정확도를 위해 동일한 환경에서 2~3회 반복 측정 후 평균을 권장합니다.`;
+  summaryEl.textContent = `${timeoutText}응답 ${result.answeredCount}/${result.total}. Mensa Norway 표준(35문항·25분)에 따라 가중치 채점된 추정값이며, 공식 검사 대체용이 아닙니다.`;
 
   wireShareButtons(result);
 }
@@ -308,42 +417,49 @@ function wireShareButtons(result) {
 
   shareSaveBtn.onclick = () => {
     const canvas = document.createElement("canvas");
-    canvas.width = 800;
-    canvas.height = 420;
+    canvas.width = 900;
+    canvas.height = 500;
     const ctx = canvas.getContext("2d");
 
-    ctx.fillStyle = "#050505";
+    ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.strokeStyle = "#2a2a2a";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+    ctx.strokeStyle = "#c5c6cf";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
 
-    ctx.fillStyle = "#888";
-    ctx.font = "600 22px 'IBM Plex Sans KR', sans-serif";
+    ctx.fillStyle = "#1a2b4c";
+    ctx.fillRect(20, 20, canvas.width - 40, 6);
+
+    ctx.fillStyle = "#44474e";
+    ctx.font = "600 18px 'Inter', 'Noto Sans KR', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Professional IQ Assessment", canvas.width / 2, 60);
+    ctx.fillText("COGNITIUM · MENSA-STYLE ASSESSMENT", canvas.width / 2, 80);
 
-    ctx.fillStyle = "#f2f2f2";
-    ctx.font = "bold 120px 'IBM Plex Sans KR', sans-serif";
-    ctx.fillText(result.iq, canvas.width / 2, 200);
+    ctx.fillStyle = "#75777f";
+    ctx.font = "500 14px 'Inter', sans-serif";
+    ctx.fillText("ESTIMATED IQ", canvas.width / 2, 130);
 
-    ctx.fillStyle = "#aaa";
-    ctx.font = "600 28px 'IBM Plex Sans KR', sans-serif";
-    ctx.fillText(result.band, canvas.width / 2, 250);
+    ctx.fillStyle = "#1a2b4c";
+    ctx.font = "700 140px 'Playfair Display', 'Noto Serif KR', serif";
+    ctx.fillText(String(result.iq), canvas.width / 2, 270);
 
-    ctx.fillStyle = "#666";
-    ctx.font = "22px 'IBM Plex Sans KR', sans-serif";
-    ctx.fillText(`상위 ${result.percentile}%`, canvas.width / 2, 300);
+    ctx.fillStyle = "#181c1e";
+    ctx.font = "600 24px 'Inter', 'Noto Sans KR', sans-serif";
+    ctx.fillText(result.band, canvas.width / 2, 320);
 
-    ctx.fillStyle = "#444";
-    ctx.font = "18px sans-serif";
-    ctx.fillText(shareUrl, canvas.width / 2, 380);
+    ctx.fillStyle = "#44474e";
+    ctx.font = "500 20px 'Inter', sans-serif";
+    ctx.fillText(`상위 ${result.percentile}%`, canvas.width / 2, 360);
+
+    ctx.fillStyle = "#75777f";
+    ctx.font = "400 14px 'Inter', sans-serif";
+    ctx.fillText(shareUrl, canvas.width / 2, 450);
 
     canvas.toBlob((blob) => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `iq-result-${result.iq}.png`;
+      a.download = `cognitium-iq-${result.iq}.png`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     }, "image/png");
