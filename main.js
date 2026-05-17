@@ -72,9 +72,11 @@ const percentileEl = document.getElementById("percentile");
 const confidenceEl = document.getElementById("confidence");
 const subscoresEl = document.getElementById("subscores");
 const summaryEl = document.getElementById("summary");
-const shareNativeBtn = document.getElementById("share-native-btn");
-const shareXBtn = document.getElementById("share-x-btn");
-const copyLinkBtn = document.getElementById("copy-link-btn");
+const shareKakaoBtn = document.getElementById("share-kakao-btn");
+const shareInstaBtn = document.getElementById("share-insta-btn");
+const shareBandBtn = document.getElementById("share-band-btn");
+const shareFacebookBtn = document.getElementById("share-facebook-btn");
+const shareSaveBtn = document.getElementById("share-save-btn");
 
 function shuffle(array) {
   const copy = [...array];
@@ -262,35 +264,89 @@ function wireShareButtons(result) {
   const encodedText = encodeURIComponent(shareText);
   const encodedUrl = encodeURIComponent(shareUrl);
 
-  shareNativeBtn.onclick = async () => {
+  async function nativeShare() {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Professional IQ Assessment", text: shareText, url: shareUrl });
+        await navigator.share({ title: "IQ 테스트 결과", text: shareText, url: shareUrl });
+        return true;
       } catch (err) {
-        // noop: user canceled share dialog
+        return false;
       }
-      return;
     }
-    openShareWindow(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`);
+    return false;
+  }
+
+  shareKakaoBtn.onclick = async () => {
+    const shared = await nativeShare();
+    if (!shared) {
+      try {
+        await navigator.clipboard.writeText(shareText + "\n" + shareUrl);
+        shareKakaoBtn.textContent = "링크 복사됨";
+        setTimeout(() => { shareKakaoBtn.textContent = "카카오"; }, 1400);
+      } catch (err) { /* noop */ }
+    }
   };
 
-  shareXBtn.onclick = () => {
-    openShareWindow(`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`);
+  shareInstaBtn.onclick = async () => {
+    const shared = await nativeShare();
+    if (!shared) {
+      try {
+        await navigator.clipboard.writeText(shareText + "\n" + shareUrl);
+        shareInstaBtn.textContent = "링크 복사됨";
+        setTimeout(() => { shareInstaBtn.textContent = "인스타"; }, 1400);
+      } catch (err) { /* noop */ }
+    }
   };
 
-  copyLinkBtn.onclick = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      copyLinkBtn.textContent = "복사 완료";
-      setTimeout(() => {
-        copyLinkBtn.textContent = "링크 복사";
-      }, 1400);
-    } catch (err) {
-      copyLinkBtn.textContent = "복사 실패";
-      setTimeout(() => {
-        copyLinkBtn.textContent = "링크 복사";
-      }, 1400);
-    }
+  shareBandBtn.onclick = () => {
+    openShareWindow(`https://band.us/plugin/share?body=${encodedText}%0A${encodedUrl}&route=${encodedUrl}`);
+  };
+
+  shareFacebookBtn.onclick = () => {
+    openShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`);
+  };
+
+  shareSaveBtn.onclick = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 800;
+    canvas.height = 420;
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "#050505";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.strokeStyle = "#2a2a2a";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+
+    ctx.fillStyle = "#888";
+    ctx.font = "600 22px 'IBM Plex Sans KR', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Professional IQ Assessment", canvas.width / 2, 60);
+
+    ctx.fillStyle = "#f2f2f2";
+    ctx.font = "bold 120px 'IBM Plex Sans KR', sans-serif";
+    ctx.fillText(result.iq, canvas.width / 2, 200);
+
+    ctx.fillStyle = "#aaa";
+    ctx.font = "600 28px 'IBM Plex Sans KR', sans-serif";
+    ctx.fillText(result.band, canvas.width / 2, 250);
+
+    ctx.fillStyle = "#666";
+    ctx.font = "22px 'IBM Plex Sans KR', sans-serif";
+    ctx.fillText(`상위 ${result.percentile}%`, canvas.width / 2, 300);
+
+    ctx.fillStyle = "#444";
+    ctx.font = "18px sans-serif";
+    ctx.fillText(shareUrl, canvas.width / 2, 380);
+
+    canvas.toBlob((blob) => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `iq-result-${result.iq}.png`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    }, "image/png");
   };
 }
 
