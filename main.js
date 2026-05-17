@@ -5,23 +5,102 @@
 const TOTAL_QUESTIONS = 35;
 const TOTAL_TIME_SEC = 25 * 60;
 
+const SHAPE_CHARS = new Set(["●","○","▲","△","■","□","◆","◇","↑","→","↓","←"]);
+const isShape = (ch) => SHAPE_CHARS.has(ch);
+
+// Generate SVG primitive paths for a shape, centered at (cx, cy) with bounding box `size`.
+function shapeInner(cx, cy, ch, size, color = "currentColor") {
+  const r = size / 2;
+  const stroke = Math.max(1.2, size * 0.09);
+  switch (ch) {
+    case "●":
+      return `<circle cx="${cx}" cy="${cy}" r="${r * 0.78}" fill="${color}"/>`;
+    case "○":
+      return `<circle cx="${cx}" cy="${cy}" r="${r * 0.74}" fill="none" stroke="${color}" stroke-width="${stroke}"/>`;
+    case "▲": {
+      const a = r * 0.86;
+      return `<polygon points="${cx},${cy - a} ${cx + a * 0.92},${cy + a * 0.6} ${cx - a * 0.92},${cy + a * 0.6}" fill="${color}"/>`;
+    }
+    case "△": {
+      const a = r * 0.86;
+      return `<polygon points="${cx},${cy - a} ${cx + a * 0.92},${cy + a * 0.6} ${cx - a * 0.92},${cy + a * 0.6}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linejoin="round"/>`;
+    }
+    case "■": {
+      const s = r * 1.45;
+      return `<rect x="${cx - s / 2}" y="${cy - s / 2}" width="${s}" height="${s}" fill="${color}"/>`;
+    }
+    case "□": {
+      const s = r * 1.45;
+      return `<rect x="${cx - s / 2}" y="${cy - s / 2}" width="${s}" height="${s}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linejoin="round"/>`;
+    }
+    case "◆": {
+      const d = r * 0.95;
+      return `<polygon points="${cx},${cy - d} ${cx + d},${cy} ${cx},${cy + d} ${cx - d},${cy}" fill="${color}"/>`;
+    }
+    case "◇": {
+      const d = r * 0.95;
+      return `<polygon points="${cx},${cy - d} ${cx + d},${cy} ${cx},${cy + d} ${cx - d},${cy}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linejoin="round"/>`;
+    }
+    case "↑":
+      return `<path d="M${cx} ${cy + r * 0.78} L${cx} ${cy - r * 0.78} M${cx - r * 0.42} ${cy - r * 0.28} L${cx} ${cy - r * 0.78} L${cx + r * 0.42} ${cy - r * 0.28}" stroke="${color}" stroke-width="${stroke * 1.3}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    case "→":
+      return `<path d="M${cx - r * 0.78} ${cy} L${cx + r * 0.78} ${cy} M${cx + r * 0.28} ${cy - r * 0.42} L${cx + r * 0.78} ${cy} L${cx + r * 0.28} ${cy + r * 0.42}" stroke="${color}" stroke-width="${stroke * 1.3}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    case "↓":
+      return `<path d="M${cx} ${cy - r * 0.78} L${cx} ${cy + r * 0.78} M${cx - r * 0.42} ${cy + r * 0.28} L${cx} ${cy + r * 0.78} L${cx + r * 0.42} ${cy + r * 0.28}" stroke="${color}" stroke-width="${stroke * 1.3}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+    case "←":
+      return `<path d="M${cx + r * 0.78} ${cy} L${cx - r * 0.78} ${cy} M${cx - r * 0.28} ${cy - r * 0.42} L${cx - r * 0.78} ${cy} L${cx - r * 0.28} ${cy + r * 0.42}" stroke="${color}" stroke-width="${stroke * 1.3}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  }
+  return "";
+}
+
+// Inline glyph (sequences / choices)
+function glyph(ch) {
+  const inner = shapeInner(12, 12, ch, 22);
+  if (!inner) return ch;
+  return `<svg class="glyph" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-label="${ch}">${inner}</svg>`;
+}
+
+// Replace shape characters in a string with inline SVG glyphs, leave other chars alone.
+function renderInline(str) {
+  return [...str].map((ch) => (isShape(ch) ? glyph(ch) : ch)).join("");
+}
+
+// Render a 3x3 matrix cell at center (cx, cy). Lays out characters horizontally with consistent size.
+function svgMatrixCell(cx, cy, content) {
+  if (content === "?") {
+    return `<text x="${cx}" y="${cy}" fill="#75777f" font-size="42" text-anchor="middle" dominant-baseline="central" font-family="Do Hyeon, Apple SD Gothic Neo, sans-serif">?</text>`;
+  }
+
+  const chars = [...content];
+  const n = chars.length;
+  const glyphSize = n >= 4 ? 14 : n === 3 ? 18 : n === 2 ? 22 : 28;
+  const gap = n >= 3 ? 2 : 4;
+  const step = glyphSize + gap;
+  const totalWidth = (n - 1) * step;
+  const startX = cx - totalWidth / 2;
+
+  return chars.map((ch, i) => {
+    const x = startX + i * step;
+    if (isShape(ch)) {
+      return shapeInner(x, cy, ch, glyphSize, "#1a2b4c");
+    }
+    return `<text x="${x}" y="${cy}" fill="#1a2b4c" font-size="${glyphSize + 4}" text-anchor="middle" dominant-baseline="central" font-family="Do Hyeon, Apple SD Gothic Neo, sans-serif">${ch}</text>`;
+  }).join("");
+}
+
 function svgMatrix(grid) {
   const cells = grid.flat();
   let body = "";
   cells.forEach((cell, i) => {
     const cx = 40 + (i % 3) * 80;
     const cy = 40 + Math.floor(i / 3) * 80;
-    const isMissing = cell === "?";
-    const fill = isMissing ? "#75777f" : "#1a2b4c";
-    const size = isMissing ? 44 : 30;
-    const weight = isMissing ? 400 : 500;
-    body += `<text x="${cx}" y="${cy}" fill="${fill}" font-size="${size}" font-weight="${weight}" text-anchor="middle" dominant-baseline="central" font-family="Inter, Noto Sans KR, sans-serif">${cell}</text>`;
+    body += svgMatrixCell(cx, cy, cell);
   });
   return `<svg viewBox="0 0 240 240" class="matrix-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3x3 matrix puzzle"><g stroke="#c5c6cf" fill="#ffffff" stroke-width="1"><rect x="0.5" y="0.5" width="239" height="239" rx="6"/></g><g stroke="#e0e3e5" stroke-width="1"><line x1="80" y1="6" x2="80" y2="234"/><line x1="160" y1="6" x2="160" y2="234"/><line x1="6" y1="80" x2="234" y2="80"/><line x1="6" y1="160" x2="234" y2="160"/></g>${body}</svg>`;
 }
 
 function figText(text) {
-  return `<div class="figure num-seq">${text}</div>`;
+  return `<div class="figure num-seq">${renderInline(text)}</div>`;
 }
 
 function figMatrix(grid) {
@@ -230,7 +309,7 @@ function renderQuestion() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "choice";
-    button.innerHTML = `<span class="choice-num">${index + 1}</span><span class="choice-content">${choice}</span><span class="choice-check"><span class="material-symbols-outlined">check</span></span>`;
+    button.innerHTML = `<span class="choice-num">${index + 1}</span><span class="choice-content">${renderInline(choice)}</span><span class="choice-check"><span class="material-symbols-outlined">check</span></span>`;
 
     if (answered === index) {
       button.classList.add("selected");
@@ -432,28 +511,28 @@ function wireShareButtons(result) {
     ctx.fillRect(20, 20, canvas.width - 40, 6);
 
     ctx.fillStyle = "#44474e";
-    ctx.font = "600 18px 'Inter', 'Noto Sans KR', sans-serif";
+    ctx.font = "20px 'Do Hyeon', 'Apple SD Gothic Neo', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("COGNITIUM · MENSA-STYLE ASSESSMENT", canvas.width / 2, 80);
 
     ctx.fillStyle = "#75777f";
-    ctx.font = "500 14px 'Inter', sans-serif";
+    ctx.font = "16px 'Do Hyeon', sans-serif";
     ctx.fillText("ESTIMATED IQ", canvas.width / 2, 130);
 
     ctx.fillStyle = "#1a2b4c";
-    ctx.font = "700 140px 'Playfair Display', 'Noto Serif KR', serif";
-    ctx.fillText(String(result.iq), canvas.width / 2, 270);
+    ctx.font = "140px 'Do Hyeon', sans-serif";
+    ctx.fillText(String(result.iq), canvas.width / 2, 280);
 
     ctx.fillStyle = "#181c1e";
-    ctx.font = "600 24px 'Inter', 'Noto Sans KR', sans-serif";
-    ctx.fillText(result.band, canvas.width / 2, 320);
+    ctx.font = "26px 'Do Hyeon', 'Apple SD Gothic Neo', sans-serif";
+    ctx.fillText(result.band, canvas.width / 2, 330);
 
     ctx.fillStyle = "#44474e";
-    ctx.font = "500 20px 'Inter', sans-serif";
-    ctx.fillText(`상위 ${result.percentile}%`, canvas.width / 2, 360);
+    ctx.font = "22px 'Do Hyeon', sans-serif";
+    ctx.fillText(`상위 ${result.percentile}%`, canvas.width / 2, 370);
 
     ctx.fillStyle = "#75777f";
-    ctx.font = "400 14px 'Inter', sans-serif";
+    ctx.font = "14px 'Do Hyeon', sans-serif";
     ctx.fillText(shareUrl, canvas.width / 2, 450);
 
     canvas.toBlob((blob) => {
